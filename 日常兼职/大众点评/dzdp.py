@@ -23,7 +23,6 @@ headers = {
     "xweb_xhr": "1",
     "platformversion": "OS X 14.4.1",
     "platform": "Android",
-    "token": "02029a21fb437039c8a5c44de79bdbfb2a354e27db8d85dbd69e5bffbbde8f35eb9fccef6a5b8f50c8d0bda5d099c7666c3de8c84567a380b18700000000462a0000d3106c8427888976ec673e7a0f6a2db80a76db623c86fccd855d9d68d203cc37ad0ef72f26a9695cdb3a13235f48eb17",
     "minaname": "dianping-wxapp",
     "Accept": "*/*",
     "Sec-Fetch-Site": "cross-site",
