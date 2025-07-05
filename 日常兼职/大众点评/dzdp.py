@@ -27,7 +27,6 @@ headers = {
     "Sec-Fetch-Site": "cross-site",
     "Sec-Fetch-Mode": "cors",
     "Sec-Fetch-Dest": "empty",
-    "Referer": "https://servicewechat.com/wx734c1ad7b3562129/562/page-frame.html",
     "Accept-Language": "zh-CN,zh;q=0.9"
 }
 url = "https://m.dianping.com/ugc/review/reviewlist"
