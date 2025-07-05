@@ -1,0 +1,339 @@
+
+    今日 key: https://www.python-spider.com/challenge/new/js
+
+    注意规则：当前时间戳前五位，做base64编码，当做一个参数，GET请求传入
+    https://www.python-spider.com/challenge/new/js2
+    即 https://www.python-spider.com/challenge/new/js2?token=********
+
+
+
+    抓包
+
+    之前讲过了利用network进行抓包的方法。现在将一些用程序抓包的方法
+    我讲两种
+    1. fiddler
+    2. charles
+
+    两种优缺点等讲完之后再进行对比
+    先看 fiddler classic,
+
+    只要是抓包工具，第一步都要配置证书
+
+    简单了解一下为什么抓包工具要配置证书：
+    客户端发一个HTTPS请求，被Fiddler拦截并且Fiddler伪装成客户端发请求给服务器
+    服务器像假装成客户端的FIddler返回了CA证书
+    自己制作了一张证书，假装服务器给客户端发了自己做的证书。获取服务器的公钥
+    客户端生成对称秘钥，并用Fiddler假冒的公钥加密发送
+    Fiddler用自己的私钥解密获取对称秘钥
+
+    问：服务器能检测到证书异常么？
+    证书的目的只是用于https中保证数据传输安全，避免被劫持暴露数据的，至于证书是谁的，谁做的，https，服务端是不care的。它只管证书是不是有效
+
+    fiddler配置证书流程:
+        Tools ---> Options ---> Https ---> 能勾的都勾选 ---> 一路确认即可
+
+    对抓包的影响因素：
+        1. 电脑本身开启了新的代理软件，如VPN，各种安全U盘，等等。导致没有走fiddler的代理
+            PS：补充知识点 ----  了解
+               a. 代理软件的开启一定会影响到全局代理，导致全局的请求走fiddler代理的端口
+               b. 有一种严苛的安全策略叫双向认证，只有客户端证书是服务器端发的，才允许访问，这个行为叫双向验证
+                  这种情况常发生在 安全盾，安全U盘访问银行/保险等对财产影响极大的网站。如果获取不到服务器发送
+                  的证书，就无法访问页面。证书一般都放在U盘里，U盘里还默认驱动+代理程序
+                  由于APP，访问证书是内嵌式的，所有APP中存在一种叫双向认证的反爬手段，但是web不存在，了解即可
+        2.  chrome插件本身安装了代理插件，它会有限按照插件去走。
+        3.  fiddler无法适配 http1.1 以上的协议。（开发者19年曾发文说正在适配）
+        4.  fiddler可以获取到 http协议和ws协议，除此之外的一般情况下抓不到。（web领域也不涉及其他情况，不必担心）
+        5.  js等静态资源会存在缓存机制，缓存后fiddler有时候也抓不到包，所以养成习惯，用ctrl+F5刷新页面
+
+    综上所述，fiddler抓不到包的可能性非常多。如果按照流程操作后依然无法抓包，建议百度。如果依然失败，建议联系我远程协助
+
+    下面开始讲fiddler的常用功能
+    不水课时，只讲常用功能，剩下的大家自行查阅文档，不再浪费时间
+
+    1. 面板左侧就是抓到包的情况，右键即可过滤抓到的包，去掉无用的信息
+    2. 选项卡下面的 叉X，可以清除一部分/全部已经获取的请求
+    3. 选项卡 Rules 是过滤选项，可以进行过滤
+
+    选择左侧选项卡之后，进入右侧选项卡面板
+
+    其中 Inspectors 是整个协议的情况
+
+    比较常用的：
+    上半部:是请求体部分
+        1. headers
+        2. cookies
+        3. raw
+        4. WebForms
+    下半部：是响应体部分
+        1. TextView
+        2. Cookies
+
+    下面进入到
+
+    https://www.python-spider.com/challenge/new/js2?token=********
+    详细抓包一手，看看数据情况
+
+
+    下一个功能
+    Composer, 这个功能类似于模拟请求
+    它支持多种模式的重放攻击
+
+    还有一种，就是右键某个请求 右键 replay 也可以进行重放攻击
+    重放攻击是一种判断接口复用性，测试接口安全能力的一种手段
+
+    AutoResponse
+    自动响应。 这个功能可以参考上节课讲的 overrides，区别是这个支持批量替换，导入导出功能
+
+    add Rules  ，这个功能我们以后会比较常用到，这里就先简单介绍一下
+    在规则里可以写正则（默认）：
+
+    EXACT 严格模式，就是必须完全一致才会替换。
+
+    我们写个规则简单搞一下
+
+    EXACT:https://www.python-spider.com/challenge/new/js
+    404_Plain.dat
+
+    把这个页面变成一个 404
+    同样也可以映射到本地文件去处理
+    AutoResponse 就讲这么多了
+
+    还有一个常用功能：Filters
+    它可以支持设置一些响应头等，以绕过chrome等浏览器默认设置的安全策略
+    比如：Access-Control-Allow-Origin  *
+    还可以拦截请求头做一些事情
+
+    fiddler请求断点功能：
+    我以前比较常用，但是现在用的比较少了，觉得麻烦，不过大家也可以试试
+
+    Rules里面 ---> Automatic Breakpoints ,就可以开启请求断点
+    一般都开启在请求之后，这样就可以修改请求的响应，用来方便我们调试代码
+
+    剩下我没有讲过的功能，大家感兴趣就自己去看文档吧。
+    https://docs.telerik.com/fiddler
+
+    --------------------------------------------------------------------
+    下面讲解Charles
+
+    Charles 与 fiddler实际上非常相似，但是在抓包原理上是有差异的
+    首先fiddler在伪造tls传输上使用的是自己搞的内容，导致tls特征非常明显
+    charles则相对与fiddler隐藏的深一些
+
+    其次，charles 支持 http2.0，并且支持macOS系统，所以使用范围更广
+    charles与fiddler对应的功能我就简单一笔带过了
+
+    坏处：charles收费。这不是 charles的问题，是我的问题
+    首先，charles 证书配置：
+    macOS自行查教程，比较麻烦
+
+    windows: Help ---> SSL proxying ---> install charles root Certificate
+        安装证书---> 本地计算机 ---> 将所有证书放到下列存储 ---> 受信任的根证书颁发机构
+        完成即可
+
+    之后 proxy 选项卡 ---> SSL proxy setting  ----> 左侧 include 输入 * 443 即可
+    Proxy 选项卡 Proxies 里面可以开启 socks代理
+
+    猿人学课程第二章抓包专题有讲关于VPN下的抓包方案。我这里不再赘述了。
+
+    左侧 Structure是结构，它会按照网页情况进行分类
+    Sequence 就是fiddler那种模式了
+
+    其中右侧/下侧 的 contents 就是整个包的情况了
+    上边儿是请求头：Headers Query String Cookies Raw
+    下边是响应体：set-cookie Text Hex 等
+
+    tools选项卡中有Compose 是发送模拟请求的位置
+
+    mapping: 建立请求映射
+    tools ---> Map Remote Settings / Map Local Settings (映射本地常用)
+    tools ---> rewrite Settings
+
+    剩下的功能还是，大家自行研究即可
+    官方文档：https://www.charlesproxy.com/documentation/
+
+    -----------------------------------------------------------------
+    抓包工具讲完了，那么我们就来用抓包工具实战一下
+    练习平台 7题和 10题
+
+    （这些都简单，我们快速过）
+
+
+    PS: 新版本的requests库中，请求用fiddler抓包会报SSL错误，即使用了 verify=False 也不行，
+        需要采用另一种解决方案，即：
+        proxies = {
+           'http': 'http://127.0.0.1:8888',
+           'https': 'http://127.0.0.1:8888'
+        }
+        requests = get(proxies=proxies)
+    也可利用 urllib3.disable_warnings() 进一步关闭警告
+
+    完整代码如下：
+    import requests
+    import urllib3
+    urllib3.disable_warnings()
+
+
+    url = 'https://www.python-spider.com/challenge/7'
+    data = {
+        'page': 2
+    }
+    headers = {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/111.0.0.0 Safari/537.36',
+    }
+    cookies = {
+        'sessionid': 'hie9wnrkxw66g6z45f37476mc1p7sbx3'
+    }
+    proxies = {
+       'http': 'http://127.0.0.1:8888',
+       'https': 'http://127.0.0.1:8888'
+    }
+    requests.get('https://www.python-spider.com/cityjson', headers=headers, cookies=cookies, verify=False, proxies=proxies)
+    response = requests.get('https://www.python-spider.com/api/challenge7', data=data, headers=headers, cookies=cookies, verify=False, proxies=proxies)
+    print(response.text)
+
+
+    接下来看第十题：
+
+    我们直接改造一下刚才的代码
+
+    完整代码如下
+    import requests
+    import urllib3
+    urllib3.disable_warnings()
+
+    session = requests.Session()
+    url = 'https://www.python-spider.com/challenge/7'
+    data = {
+        'page': 5
+    }
+    headers = {
+        'Content-Length': '6',
+        'Accept': 'application/json, text/javascript, */*; q=0.01',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36',
+        'Origin': 'https://www.python-spider.com',
+        'Referer': 'https://www.python-spider.com/challenge/10',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+    }
+    cookies = {
+        'sessionid': 'hie9wnrkxw66g6z45f37476mc1p7sbx3'
+    }
+    proxies = {
+       'http': 'http://127.0.0.1:8888',
+       'https': 'http://127.0.0.1:8888'
+    }
+
+    session.headers.clear()
+    session.headers.update(headers)
+    response = session.post('https://www.python-spider.com/api/challenge10', headers=headers, cookies=cookies, verify=False, proxies=proxies, data=data)
+    print(response.text)
+
+
+    ---------------------------------------------------------------------
+    通过以上的例子相信大家对抓包工具已经有了一定的了解，接下来，我们继续加深这个印象，
+    顺便给大家讲一下关于cookie 和 session的知识点
+
+    还是，原理没有用，网上八股文那么多，自己去看。
+
+    为什么要有cookie这个玩意。因为在http协议中，
+    有很多值是固定要传输的，每一次请求都要向后端传输，而前端也需要一个方便的数据库/全局变量
+    这样就在协议的制定中规定了，要有一个cookie的key在请求头中进行传输
+    并且，服务器也能够给前端设置cookie
+
+    而session是什么呢？ 它是一个会话。后端是需要利用cookie来判断，这个用户是不是一个用户（如果需要的话）
+    那么， session就可以理解为是客户端为了保持这个会话而创建的名词。session不是cookie，但是session的
+    保持需要cookie来维系。
+
+    【大白话就是这样，八股文自己去百度，网上全都是】
+
+    做个总结：在不登陆的前提下，服务器需要标记你这个用户，cookie是最好的选择
+
+    服务器就会给客户端下发的cookie里面可能会包含非常多的信息。这种cookie有两种形式
+
+    第一种：cookie里面就包含信息，但是解密方案只有服务端有
+    另外一种：返回的只是一个key，value在服务端的数据库存着
+    下面我们来做一道session保持的题目
+
+
+    https://www.python-spider.com/challenge/6
+
+    完整代码如下
+
+    import requests
+    import urllib3
+    urllib3.disable_warnings()
+
+    session = requests.Session()
+    url = 'https://www.python-spider.com/challenge/7'
+
+    headers = {
+        'Content-Length': '6',
+        'Accept': 'application/json, text/javascript, */*; q=0.01',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36',
+        'Origin': 'https://www.python-spider.com',
+        'Referer': 'https://www.python-spider.com/challenge/10',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+    }
+    cookies = {
+        'sessionid': 'hie9wnrkxw66g6z45f37476mc1p7sbx3'
+    }
+    proxies = {
+       'http': 'http://127.0.0.1:8888',
+       'https': 'http://127.0.0.1:8888'
+    }
+
+    session.headers.clear()
+    session.headers.update(headers)
+    for i in range(49, 55):
+        data = {
+            'page': i
+        }
+        response = session.post('https://www.python-spider.com/api/challenge6', headers=headers, cookies=cookies, verify=False, proxies=proxies, data=data)
+        print(response.text)
+
+
+    接下来我们来分析一下比赛平台的第13题
+    https://match.yuanrenxue.com/match/13
+
+
+    完整代码如下
+    import requests
+    import urllib3
+    urllib3.disable_warnings()
+    import re
+    import subprocess
+
+
+    session = requests.Session()
+    headers = {
+        'Accept': 'application/json, text/javascript, */*; q=0.01',
+        'User-Agent': 'yuanrenxue.project',
+        'Origin': 'https://match.yuanrenxue.com',
+        'Referer': 'https://match.yuanrenxue.com',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+    }
+
+    proxies = {
+       'http': 'http://127.0.0.1:8888',
+       'https': 'http://127.0.0.1:8888'
+    }
+
+
+    #  获取cookie
+    response = session.get('https://match.yuanrenxue.com/match/13', headers=headers, verify=False,
+                            proxies=proxies, cookies={'sessionid': '1w970nwiefzk19kpvk0f81f8nqif1595'})
+    js_code = 'document={};location={};' + re.search('<script>(.*)</script>', response.text).group(1) + ';console.log(document.cookie)'
+    result = subprocess.check_output(['node', '-e', js_code])
+    _cookie = re.match('yuanrenxue_cookie=(.*);path=', result.decode()).group(1)
+    cookies = {
+        'yuanrenxue_cookie': _cookie
+    }
+    for i in range(1, 6):
+        params = {
+            'page': i
+        }
+        response = session.get('https://match.yuanrenxue.com/api/match/13', headers=headers, cookies=cookies, verify=False, proxies=proxies, params=params)
+        print(response.text)

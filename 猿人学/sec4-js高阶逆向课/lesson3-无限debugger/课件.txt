@@ -1,0 +1,361 @@
+
+    无限debugger ,是典型的js干扰调试的一种
+
+
+    当我们稍微学习了一些js基础知识，加上一些Devtools 之后，就可以轻松的搞定
+    那么，今天就让我们来搞一下无限debugger的处理方案
+    在讲这个之前，我们来入门一个hook，不为别的，为了能够更好的让我们理解今天的课程
+    至于 hook全方案，我们以后再讲
+
+    hook 八股文还是，大家自己百度。我说一下我自己的理解
+
+    hook，就是钩子，相当于把一个方法勾着，勾住之后呢，我们给原来的函数/功能 加层壳
+    壳的最后要执行之前的逻辑，剩下的壳子里功能，我们按照自己的想法来定制
+
+    function a(){
+        return arguments[0]
+    }
+    有这样的一个函数a,这个a假设我们是无法修改的，也就是不能动，但是，我想看到传入a里面的第二个参数
+    那么怎么办呢?
+    _a = a   // 这一步叫保留原始函数
+    a = function(){   // 这一步叫重写函数
+        console.log(arguments[1])   //  实现我们想要功能和逻辑的地方
+        return _a.apply(this,arguments)        //  保留原始的功能，让原来的内容可以正常执行
+    }
+
+    概念区分：（广义，约定，习惯）
+    hook 与 重写
+
+    重写： 改变掉原先函数的逻辑，让功能变化
+    hook：让之前函数的功能不发生变化，只不过让我们随心所欲的加入一些东西，去控制它的情况
+
+
+
+    首先，我们要知道，在浏览器实现debugger的方法有哪些
+
+    1. debugger关键词（最经典的了，基础课大家应该太熟悉了，我们经常用这个关键词做调试）
+    2. eval('debugger') 原理跟1类似，只不过是在虚拟机里面执行debugger的方法
+    3. Function('debugger')() 及其变种 原理跟2类似，只不过是在虚拟机里面执行匿名函数，匿名函数里有debugger的方法
+
+    这些debugger方法，是实现debugger的基础，可以理解为是三元素。基于三种元素，可以形成多种多样的玩法
+
+    在我们接触无限debugger之前，要先了解一点
+    1. 无限debugger一定是有限debugger，不信邪的执行一下下面的代码：
+        while(1){debugger;}
+        你看浏览器扎不扎你就完了
+
+        只不过这个执行次数多到我们本身靠手点难以接受罢了
+
+    2. 三元素之间还可以相互组合，并且套任何的方式。虽然最终实现的原理是这个，但是中间的过程可能会非常复杂
+    3. 解决无限debugger名词解释应该为：在没有debugger干扰的情况下调试，而不是：放弃所有的debugger调试
+        （也就是说，我们自己的调试还得能正常使用）
+
+    那么接下来， 我就将上面的三元素进行组合，产生各种无限debugger（不一定全，但是大家感受一下即可）
+
+
+    1.  setInterval('debugger', 500)
+        这种是利用定时器的方法，去不断间隔的创造宏任务队列，用来干扰我们的调试
+        解决方案：
+            a. 在定时器启动之前重写 setInterval
+            b. Never pause here
+            c. AutoResponse 直接把干扰点干掉
+
+    2.  html页面生产时，直接自动生成几千个script标签，标签里只写一个debugger
+            解决方案：
+            a. AutoResponse 直接把干扰点干掉
+
+            拓展：
+                反爬方对抗方案：每次页面都是动态的，替换了校验不通过
+                攻方对抗方案：  1. 找到动态点，动态会坍缩成静态
+                             2. 校验不通过又如何，只要js能调试，就代表着，这轮代码我调了。总不能每一次都返回全新的script吧?
+
+                反爬方对抗方案：我的debugger生成方式都是随机的，三元素我各种拼接组合，而且每天还手动修改
+                攻方对抗方案：  编译浏览器，让script的debugger直接不触发，只出发我手动打断点的位置
+
+                ......
+
+    3.   for (let i=0;i<=5000;i++){
+            Function('debugger')()  // 原型链 获取Function
+            eval('debugger')
+            debugger;
+         }
+
+            解决方案：
+                a. 干掉这个循环进入的函数
+                b. Never pause here
+                c. AutoResponse 直接把干扰点干掉
+
+            拓展：
+                Never pause here 对抗
+                j = '';
+                for (let i=0;i<=5000;i++){
+                    j += ';'
+                    Function('debugger' + j)()
+                    eval('debugger' + j)
+                    debugger;
+                 }
+
+                 解决方案：
+                    a. 干掉这个循环进入的函数
+                    b. AutoResponse 直接把干扰点干掉
+
+                AutoResponse 对抗
+                'debugger' 字符串用业务代码+一大堆乱七八糟的方式算出来，最后给个返回值debugger
+
+                解决方案：
+                    对抗这个函数，把返回值干掉
+
+                .............
+
+    4. 添加script标签，插入debugger
+
+        // 外面再套循环体，懒得写了
+        cont = document.body
+        var newScript = document.createElement('script');
+        newScript.type = 'text/javascript';
+        newScript.innerHTML = 'debugger';
+        cont.appendChild(newScript);
+
+        解决方案：document.createElement里面把script重写
+
+
+    5. 关于无限debugger实现的拓展
+        以上所有方法都可以嵌套使用，我只是表示一部分逻辑。但是无论怎么嵌套，处理的方案都是一致的
+
+        1. 优先尝试 Never pause here （最方便快捷，但是最卡，也最容出问题）
+        2. 次优先尝试重写调用函数
+            如： Function = function(){}
+               setInterval = function(){}
+            缺陷：容易破坏业务逻辑，导致控制流变化
+        3.  使用 AutoResponse/mapping/overrides 替换
+            缺陷：操作稍微有一点点的麻烦，对动态情况的支持不太好，也可能会改变控制流走向
+
+        4.  万一以上三个都难受了怎么办？ 别逆向了，反调试都那么难了，那加密不得难上天啊。放弃吧，嗷~
+            【自定义浏览器? 重新编译浏览器? 魔改debugger逻辑? .......】
+
+        搞一下练习平台的第 54 题
+
+        // 为什么这么写，hook eval
+
+        // 此处课程代码有错误，课件里已修正
+        _eval = eval;
+        eval= function(){
+            if (arguments[0].indexOf('debugger') === -1)
+            return _eval(arguments[0])
+        }
+
+        // 为什么这么写，原型链，基础
+        A = function(){};
+        A.prototype.bbb =  function(){console.log('11111')}
+        aaa = new A(); // aaa._proto_ == A.prototype
+        A.prototype.bbb = function(){console.log('55555')}
+        aaa.bbb() // 55555
+
+        // document._proto_._proto_._proto_ = Node.prototype
+
+        _appendChild = Node.prototype.appendChild
+        Node.prototype.appendChild = function(){
+            if (arguments[0].innerHTML && arguments[0].innerHTML.indexOf('debugger') != -1){
+                 arguments[0].innerHTML = ''
+            }
+            return _appendChild.apply(this, arguments) // 改变this的指向
+        }
+
+
+        然后把其他的 script里的debugger 用 autoResponse/overrides/mapping 替换掉
+
+        // 思考，Function 重写为什么不行?
+        _Function = Function
+        Function = function(){
+            if (arguments[0].indexOf('debugger') != -1){
+                return _Function('')
+            }
+            return _Function(arguments[0])
+        }
+        // 学过原型链的大家应该都清楚了
+        已知：
+        1. Function.constructor = Function
+        2. 所有的函数定义，实际上都是 new Function
+        3. 也就是说，函数实际上是 Function 的实例化对象
+        4. 那么函数的constructor，实际上就是 Function.prototype.constructor
+        5. 所以 Function.prototype.constructor = Function
+        6. 所以只要修改 Function.prototype.constructor，就可以实现 hook 自定义函数的constructor 目的
+
+        所以应该这样写：
+        _Function = Function
+        Function.prototype.constructor = function(){
+            if (arguments[0].indexOf('debugger') != -1){
+                    return _Function('')
+                }
+            return _Function(arguments[0])
+        }
+
+
+    第二个知识点：
+        python与node.js的代码交互
+
+        利用python执行js
+
+        首先要有一个能够执行js的引擎 pyv8早就不维护了，不建议使用
+
+        1. py-mini-racer
+           pip install py-mini-racer
+         这个是否需要安装 node.js 我不清楚，但是它的执行环境确实和node.js不一样，我懒得测试了
+
+        2. Pyexecjs
+            pip install Pyexecjs
+        首先要有一个node.js的环境，否则会调用windows自己的js脚本引擎，那个没卵用
+
+        3. 调node.js 还有一个方法：
+        os.popen
+        跟上两个比：
+        坏处：不能调函数，不能传参
+        好处：能收到异步内容，只要控制台有console.log，通道就能接受到
+
+        4. 直接用node.js调
+        上节课我们用过了一个方法，那就是：subprocess.check_output(['node', '-e', js_code]) // -e eval
+        至于 subprocess.check_output 与 os.popen 有什么区别，大家自行百度，我只能说
+        使用起来  subprocess.check_output 手感更好，出异常概率更小
+
+        5. 不要用os.system 谢谢，坑都是给你挖好的，你躺里就凉了
+
+
+
+    下面是讲课的时候 1.js 文件：
+    function decode(){
+        console.log((new Date()).getTime())
+        process.exit()
+    }
+    (new Promise((f)=>{f()})).then(()=>{
+        setTimeout(decode, 3000)
+        }
+    )
+
+
+
+    下面是讲课的时候 1.py 文件：
+    js_code = """
+    // console.log(__dirname)
+    var a = 1;
+    var f = 1;
+    function b(){
+        return arguments[0] + 100
+    }
+    """
+
+    from py_mini_racer import MiniRacer
+    ctx = MiniRacer()
+    ctx.eval(js_code)
+    result = ctx.call('b', 100)
+    print(result)
+
+
+    import execjs
+    ctx = execjs.compile(js_code)
+    result = ctx.call('b', 200)
+    print(result)
+
+
+    import subprocess
+    result = subprocess.check_output(['node', '-e', js_code])
+    print(result)
+
+
+    import os
+    js_code = js_code.replace('// ', '')
+    print(js_code)
+    with os.popen('node -e console.log(global)') as p:
+        print(p._stream.buffer.read().decode('utf-8'))
+
+    js_code = """
+    (new Promise((f)=>{f()})).then(()=>{
+        a = 1000;
+        // console.log(a);
+        global.result = a;
+        }
+    )
+    function a(){
+        return global.result;
+    }
+    """
+
+    import execjs
+    ctx = execjs.compile(js_code)
+    result = ctx.call('a')
+    print(result)
+
+    import subprocess
+    result = subprocess.check_output(['node', '-e', js_code.replace('//', '')])
+    print(result)
+
+    # 异步并发方案：借助硬盘IO操作
+
+    # result = subprocess.check_output(['node', '1.js'])
+    # print(result)
+
+    # import threading
+    # def parallel():
+    #     result = subprocess.check_output(['node', '1.js'])
+    #     print(result)
+    #
+    #
+    # for i in range(10):
+    #     th = threading.Thread(target=parallel, args=())
+    #     th.start()
+
+    # 如果要传参怎么办？
+
+    # with open('1.js') as f:
+    #     js_code = f.read().replace('getTime()', 'getTime() + 900000000000000000')
+    #
+    # import threading
+    # def parallel(js_code):
+    #     result = subprocess.check_output(['node', '-e', js_code])
+    #     print(result)
+    #
+    #
+    # for i in range(10):
+    #     th = threading.Thread(target=parallel, args=(js_code,))
+    #     th.start()
+
+
+    # 还有一种情况，就是 js_code 非常大，传进去会报错【比较罕见】
+    # 那么，我们就只好借助硬盘io了，也可以用内存，先不讲 硬盘便于理解
+    import time
+    import threading
+    import os
+    import random
+    def parallel():
+        with open('1.js', 'r') as f:
+            js_code = f.read().replace('getTime()', 'getTime() + 1900000000000000000')
+
+        file_name = 'result{}.js'.format(time.time() + random.random())
+        with open(file_name, 'w') as f:
+            f.write(js_code)
+        result = subprocess.check_output(['node', file_name])
+        print(result)
+        os.remove(file_name)  # 删除缓存文件
+
+
+    for i in range(10):
+        th = threading.Thread(target=parallel, args=())
+        th.start()
+
+
+    最后的最后，解决一个问题： cookie加密为什么有时候看不见混淆的js了，有时候又能看见？需要什么姿势才好？
+
+# set-cookie
+
+# 混淆的js set-cookie
+
+# [混淆的js] 计算出的值，基本上已经确定了
+
+# 请求：没有携带这个正常的结果，sign=*******
+
+#       不相等，返回混淆的js，并且重新对你进行标记 第二个 正常的结果
+
+# sign=******* reload() 刷新页面
+
+#   有时候看不到混淆的js，就是因为你的 sign 是合法的，和标记一致的，并且在有效期内
+
+

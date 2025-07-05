@@ -1,0 +1,187 @@
+Success
+
+
+
+    chrome Devtools 也叫谷歌调试工具
+
+    打开方式有以下几种
+
+    1. F12
+    2. 右上角三个点 -----> 更多工具 -----> 开发者工具
+    3. ctrl + shift + i
+
+
+    文档地址：https://developer.chrome.com/docs/devtools/  建议通读一次
+
+
+    打开之后会看到很多的选项卡:
+    Elements Console Sources Network Performance Memory Application Security
+    剩下的选项卡是新功能/实验室功能，不稳定，所以不介绍了
+
+    首先是
+    元素选择器 与 Device Mode （设备模式）
+    开发者工具左侧第一个按钮是元素选择器。快捷键 ctrl + shift + c
+    可以选取页面上的任何样式/部位，会直接定位到 Elements 的标签位置
+
+    Device Mode （设备模式）
+    可以设置设备模式。一般而言对我们作用不大，现在的网站手机页面写的不是响应式
+    而是用一个新域名做指向  m.********.com，所以利用这个方案不太能看得见手机端的样式了
+    开发者还是很常用的，但是我们用不到
+
+
+    Elements
+    很重要 ：※※※※※
+    左侧：
+        它可以获取到经过js渲染之后的，所有当前页面展示出来的 html代码
+    特性如下：
+        1. 通过双击可以修改任何代码
+        2. delete可以删除节点
+        3. 右键可以针对dom节点进行其他相关操作：
+            包括：添加属性，编辑整个HTML页面，复制相同节点并在后面插入，删除元素
+                剪切，复制（元素，xpath，css样式，xpath等），粘贴
+                隐藏元素，调整force状态（开发用，我们不用管），dom断点（非常重要）
+
+                递归展开 Expand recursively
+                collapse children
+                截图
+                ...
+
+                去文档看吧
+
+
+    右侧：
+    style：当前选择元素的样式，可以修改，开关。（对于css反爬来说，查看起来会比较方便）
+    computed：盒子模型，一般不用管，这个不是我们这个年龄段应该涉及的东西
+    layout：同上，我们这个年龄段不应该玩开发的东西
+    event listeners: 【重要】 可以看到某个元素的监听情况和绑定事件。对于一些网站，某些标签点击有绑定的情况，可以明显看到
+                      https://www.python-spider.com/challenge/new/js
+    DOM 断点：可以看到dom断点的情况，开启或者关闭
+    properties: 可以看到这个dom节点的对象属性。不过一般我们不这样看，我们习惯在调试的时候用 console.dir 看（基础课讲了）
+    accessibility: 实验性功能，暂时可以不考虑，以后发现有用再讲给大家
+
+
+    console：控制台
+
+    从左至右
+    弹出消息统计，清空消息栏，选择控制台线程-也可以粗略的理解为iframe（不同框架内变量有差异），
+    小眼睛：创造一个表达式，用来做观察对比用
+    过滤器：消息过滤，一般情况用不到，但是遇到控制台一直吐无用消息的时候很好用
+    默认等级：显示消息等级，一般不用
+    Issues:一般不用管
+
+    控制台右键：清理console  清理console记忆  保存
+    PS：什么时候需要清理console记忆？ 当小内存出现异常的时候。比较常见
+
+    设置：
+        自己看文档吧。其中有一个建议一直勾选：
+        Preserve log。 刷新日志不清空
+
+    Sources
+
+    左侧：
+    page  页面加载的所有内容，包含各种样式。只要是本页面加载的，都可以在这里面找到
+    Filesystem: 在 sources 左侧的面板中选择Filesystem，
+                点击Add folder to workspace，将你本地运行的站点的相关源文件添加到
+                Devtools 的工作区，会自动识别 Page 下和工作区下相对应的文件，
+                在 devtools 更改文件并保存，即持久化保存
+
+                实际可以理解为，就是浏览器对本地的一个映射，可以在浏览器里修改本地文件
+                这个对于在网页上使用其实没有太大的帮助，但是如果把某些js down下来的话
+                会比较方便，我不擅用这个功能。觉得生硬。大家可以尝试一下
+    Overrides: 这个相对于Filesystem就比较实用一些了，我们先给个工作目录
+                然后就可以根据想法魔改修改任何的东西了。
+                我们也可以直接把整个page保存下来然后去修改
+
+                但是根据大家的反馈情况，Overrides的使用率远低于mapping/AutoResponse的使用率
+                这个就看大家的习惯了。
+
+    Content scripts: https://developer.chrome.com/extensions/content_scripts?utm_source=devtools
+                【因为我不用，所以我不讲，知识盲点】
+
+    Snippets: 类似于控制台，只不过里面可以写多行js。
+
+    右侧：断点调试【打断点 + 各种走向详细说明】
+
+    Threads:线程，如果没有的话就不显示了
+    Watch: 变量监控
+    BP: 断点调试
+    Scope: 当前作用域情况（不明白原理看基础课去）
+    CS：调用栈
+    XHR/fetch 断点:  提问：XHR必备的流程是哪两个?  它实际捕获的是第二个发送之前的一瞬间
+    DOM断点: 就是之前说的那个DOM断点。注意：DOM断点刷新是无效的
+    GL: 全局的监听事件汇总，显示所有绑定到 window 的事件监听器，也可以找到对应的绑定代码, 一般情况下用不到。但是会个别时候协助定位异常位置
+    ELB: 事件监听断点，当触发监听事件的那一刻，会打断点停止。
+        我是没有全用过的。自己看文档吧
+        一般我用的：script timer mouse canvas XHR
+
+    CSP 断点: 用于在违反内容安全策略的时候进入断点，https://developer.chrome.com/blog/new-in-devtools-89/#trusted-types-violations
+        没用过，打扰了
+
+
+    network
+    谷歌内置抓包工具，优点缺点都非常明显
+
+    从左至右：
+    红色圆点：开启/关闭流量监控
+    圈叉：清空当前的捕获数据
+    漏斗：过滤器面板是否开启
+    放大镜：搜索
+    Preserve log：是否更新页面是否缓存捕获内容  视情况开启/关闭
+    Disable cache: 是否禁用缓存。建议禁用，别怪我没提醒你
+    throttling: 开发用，用于模拟网络环境不好的时候，加载页面情况
+    network conditions:配置一些请求信息，主要是UA（这个不好用，有更好用的chrome插件）
+    上传下载: 不用说了，保存这些缓存到本地或者从本地上传到chrome
+
+    过滤器条: 太简单了，看文档吧, 需要注意选取范围 鼠标滑轮可以控制
+
+    抓包面板:
+    name: 名字
+    status: 状态码
+    type: 加载形式
+    Initiator: 可以理解这个数据的来源位置，如果是js代码发出的，可以看到发出的调用栈
+    Size: 尺寸
+    Time: 加载时间
+    Waterfall: 加载时间轴
+
+    面板右键: 会有一些操作, 主要常用的是 copy curl 用于一键生成爬虫代码
+
+    点进去抓包后内容: ******省略
+
+    Performance: 性能优化相关的选项卡，我们用不到，不用管
+
+    Memory: 同上，我们用不到
+
+    Application:
+
+    Manifest: https://web.dev/add-manifest/?utm_source=devtools
+    Service Workers:
+    Storage: 下面的数据库面板汇总，一般用于一键清除所有数据
+    Storage:
+        Local Storage: 相当于浏览器里针对这个网页的一个数据库
+        Session Storage: 同上
+        indexedDB: 同上，但是没见人用过 https://developer.chrome.com/docs/devtools/storage/indexeddb/?utm_source=devtools
+        webSQL: 用来查询chrome数据库的，支持sql语言 https://developer.chrome.com/docs/devtools/storage/websql/?utm_source=devtools
+        cookie: 就是cookie
+            Domain 指定Cookie的有效域，决定在向该域发送请求时是否携带此Cookie
+            path 指定Cookie的有效路径
+            Expires/Max-age 过期时间
+            HttpOnly 用于避免cookie被Javascript访问
+            Secure Cookie的安全属性，用于指定cookie需要通过安全Socket层连接传递。若设置为true，则浏览器只会在HTTPS和SSL等安全协议中传输此Cookie
+            SameSite SameSite用来限制第三方 Cookie，从而减少安全风险。它有3个属性，分别是
+                    Strict 完全禁止第三方Cookie，跨站点时，任何情况下都不会发送Cookie
+                    Lax 大多数情况也是不发送第三方 Cookie，但是导航到目标网址的 Get 请求除外
+                    None 网站可以选择显式关闭SameSite属性，将其设为None。不过，前提是必须同时设置Secure属性（Cookie 只能通过 HTTPS 协议发送），否则无效。
+            SameParty  不知道，没用过，不了解，懒得查
+            Priority 优先级，chrome的提案，定义了三种优先级，Low/Medium/High，当cookie数量超出时，低优先级的cookie会被优先清除
+
+        Trust Tokens: 没用过，懒得查
+        Interest Groups: 没用过，懒得查
+        Shared Storage: 共享存储器，没用过，懒得查
+        Cache Storage: https://developer.chrome.com/docs/devtools/storage/cache/?utm_source=devtools
+
+    Background Services:
+        https://developer.chrome.com/docs/devtools/javascript/background-services/
+
+
+    Lighthouse: 搜集多个现代网页性能指标，分析 Web 应用的性能并生成报告，为开发人员进行性能优化的提供了参考方向
+                https://github.com/GoogleChrome/lighthouse/blob/HEAD/docs/user-flows.md
