@@ -1,0 +1,7 @@
+1. 逆向目标 verify 的 w
+2. w分为两段
+2.1 对一个16为的key 去 rsa 加密 key随机生成的
+2.2 aes cbc 传json
+
+
+{"setLeft":111,"passtime":480,"userresponse":112.34382207141533,"device_id":"","lot_number":"df98636e640a4683921c84daf63e0e16","pow_msg":"1|0|md5|2025-05-22T21:30:42.588823+08:00|24f56dc13c40dc4a02fd0318567caef5|df98636e640a4683921c84daf63e0e16||8292af7f57fcbe45","pow_sign":"b5b68b16bc98acca1c6a2cb49aabe520","geetest":"captcha","lang":"zh","ep":"123","biht":"1426265548","cZ4x":"u8YT","640a46":"9863","em":{"ph":0,"cp":0,"ek":"11","wd":1,"nt":0,"si":0,"sc":0}}

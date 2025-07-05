@@ -1,0 +1,42 @@
+import re
+
+country_str = """"
+countries_by_regions['1'] = [['', '-------'], [42, 'China, mainland'], [30, 'Brunei Darussalam'], [34, 'Cambodia'], [53, "Democratic People's Republic of Korea"], [93, 'Indonesia'], [101, 'Japan'], [109, "Lao People's Democratic Republic"], [118, 'China, Macau SAR'], [122, 'Malaysia'], [135, 'Mongolia'], [139, 'Myanmar'], [161, 'Philippines'], [167, 'Republic of Korea'], [184, 'Singapore'], [199, 'Thailand'], [201, 'Timor-Leste'], [222, 'Viet Nam'], [232, 'China, Hong Kong SAR']];
+
+            countries_by_regions['4'] = [['', '-------'], [74, 'Gaza Strip'], [233, 'Sudan'], [3, 'Algeria'], [10, 'Armenia'], [14, 'Azerbaijan'], [16, 'Bahrain'], [50, 'Cyprus'], [75, 'Georgia'], [95, 'Iraq'], [98, 'Israel'], [103, 'Jordan'], [104, 'Kazakhstan'], [107, 'Kuwait'], [108, 'Kyrgyzstan'], [111, 'Lebanon'], [114, 'Libya'], [137, 'Morocco'], [154, 'Oman'], [166, 'Qatar'], [180, 'Saudi Arabia'], [197, 'Syrian Arab Republic'], [198, 'Tajikistan'], [206, 'Tunisia'], [207, 'Turkey'], [208, 'Turkmenistan'], [213, 'United Arab Emirates'], [219, 'Uzbekistan'], [225, 'West Bank'], [226, 'Western Sahara'], [227, 'Yemen'], [234, 'Egypt']];
+
+            countries_by_regions['8'] = [['', '-------'], [1, 'Afghanistan'], [17, 'Bangladesh'], [24, 'Bhutan'], [92, 'India'], [94, 'Iran'], [123, 'Maldives'], [142, 'Nepal'], [155, 'Pakistan'], [191, 'Sri Lanka']];
+
+            countries_by_regions['10'] = [['', '-------'], [2, 'Albania'], [5, 'Andorra'], [13, 'Austria'], [20, 'Belgium'], [26, 'Bosnia and Herzegovina'], [48, 'Croatia'], [55, 'Denmark'], [63, 'Estonia'], [66, 'Faroe Islands'], [68, 'Finland'], [69, 'France'], [76, 'Germany'], [78, 'Greece'], [84, 'Guernsey'], [91, 'Iceland'], [96, 'Ireland'], [97, 'Isle of Man'], [99, 'Italy'], [102, 'Jersey'], [110, 'Latvia'], [115, 'Liechtenstein'], [116, 'Lithuania'], [117, 'Luxembourg'], [120, 'Madeira Islands'], [125, 'Malta'], [134, 'Monaco'], [144, 'Netherlands'], [153, 'Norway'], [164, 'Portugal'], [178, 'San Marino'], [186, 'Slovenia'], [190, 'Spain'], [193, 'Svalbard and Jan Mayen Islands'], [195, 'Sweden'], [196, 'Switzerland'], [200, 'Republic of North Macedonia'], [214, 'United Kingdom'], [230, 'Montenegro'], [231, 'Republic of Serbia']];
+
+            countries_by_regions['6'] = [['', '-------'], [4, 'American Samoa'], [12, 'Australia'], [46, 'Cook Islands'], [67, 'Fiji'], [71, 'French Polynesia'], [82, 'Guam'], [106, 'Kiribati'], [126, 'Marshall Islands'], [132, 'Federated States of Micronesia'], [141, 'Nauru'], [145, 'New Caledonia'], [146, 'New Zealand'], [150, 'Niue'], [151, 'Norfolk Island'], [152, 'Northern Mariana Islands'], [156, 'Palau'], [158, 'Papua New Guinea'], [162, 'Pitcairn'], [175, 'Saint Pierre et Miquelon'], [177, 'Samoa'], [187, 'Solomon Islands'], [203, 'Tokelau'], [204, 'Tonga'], [210, 'Tuvalu'], [220, 'Vanuatu'], [223, 'Wake Island'], [224, 'Wallis and Futuna']];
+
+            countries_by_regions['9'] = [['', '-------'], [6, 'Angola'], [22, 'Benin'], [27, 'Botswana'], [32, 'Burkina Faso'], [33, 'Burundi'], [35, 'Cameroon'], [37, 'Cabo Verde'], [39, 'Central African Republic'], [40, 'Chad'], [44, 'Comoros'], [45, 'Congo'], [52, "Côte d'Ivoire"], [54, 'Democratic Republic of the Congo'], [56, 'Djibouti'], [61, 'Equatorial Guinea'], [62, 'Eritrea'], [64, 'Ethiopia'], [72, 'Gabon'], [73, 'Gambia'], [77, 'Ghana'], [85, 'Guinea-Bissau'], [86, 'Guinea'], [105, 'Kenya'], [112, 'Lesotho'], [113, 'Liberia'], [119, 'Madagascar'], [121, 'Malawi'], [124, 'Mali'], [128, 'Mauritania'], [129, 'Mauritius'], [130, 'Mayotte'], [138, 'Mozambique'], [140, 'Namibia'], [148, 'Niger'], [149, 'Nigeria'], [170, 'Rwanda'], [171, 'Réunion'], [172, 'Saint Helena'], [179, 'Sao Tome and Principe'], [181, 'Senegal'], [182, 'Seychelles'], [183, 'Sierra Leone'], [188, 'Somalia'], [189, 'South Africa'], [194, 'Swaziland'], [202, 'Togo'], [211, 'Uganda'], [215, 'United Republic of Tanzania'], [228, 'Zambia'], [229, 'Zimbabwe']];
+
+            countries_by_regions['3'] = [['', '-------'], [7, 'Anguilla'], [8, 'Antigua and Barbuda'], [9, 'Argentina'], [11, 'Aruba'], [15, 'Bahamas'], [18, 'Barbados'], [21, 'Belize'], [25, 'Bolivia'], [28, 'Brazil'], [29, 'British Virgin Islands'], [38, 'Cayman Islands'], [41, 'Chile'], [43, 'Colombia'], [47, 'Costa Rica'], [49, 'Cuba'], [57, 'Dominica'], [58, 'Dominican Republic'], [59, 'Ecuador'], [60, 'El Salvador'], [65, 'Falkland Islands (Malvinas)'], [70, 'French Guiana'], [80, 'Grenada'], [81, 'Guadeloupe'], [83, 'Guatemala'], [87, 'Guyana'], [88, 'Haiti'], [89, 'Honduras'], [100, 'Jamaica'], [127, 'Martinique'], [131, 'Mexico'], [136, 'Montserrat'], [143, 'Netherlands Antilles'], [147, 'Nicaragua'], [157, 'Panama'], [159, 'Paraguay'], [160, 'Peru'], [165, 'Puerto Rico'], [173, 'Saint Kitts and Nevis'], [174, 'Saint Lucia'], [176, 'Saint Vincent and the Grenadines'], [192, 'Suriname'], [205, 'Trinidad and Tobago'], [209, 'Turks and Caicos islands'], [216, 'United States Virgin Islands'], [218, 'Uruguay'], [221, 'Venezuela']];
+
+            countries_by_regions['2'] = [['', '-------'], [19, 'Belarus'], [31, 'Bulgaria'], [51, 'Czech Republic'], [90, 'Hungary'], [133, 'Republic of Moldova'], [163, 'Poland'], [168, 'Romania'], [185, 'Slovakia'], [212, 'Ukraine']];
+
+            countries_by_regions['5'] = [['', '-------'], [23, 'Bermuda'], [36, 'Canada'], [79, 'Greenland'], [217, 'United States of America']];
+
+            countries_by_regions['7'] = [['', '-------'], [169, 'Russian Federation']];
+            """
+pattern = r"countries_by_regions\['(\d+)'\] = \[\['', '-------'\],(.*?)\];"
+matches = re.findall(pattern, country_str, re.DOTALL)
+
+result = []
+for region, country_list_str in matches:
+    country_pattern = r'\[(\d+), \'(.*?)\'\]'
+    country_matches = re.findall(country_pattern, country_list_str)
+    for num, country in country_matches:
+        result.append(f"'{region}', {num}, '{country}'")
+count = 0
+# 打印结果
+for item in result:
+    count += 1
+    region_id = str(item).split(",")[0]
+    country_id = str(item).split(",")[1]
+    country = str(item).split(",")[2]
+    print(f"{region_id}, {country_id}, {country}")
+print(count)
+# 10 99 Italy
