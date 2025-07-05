@@ -9,7 +9,6 @@ cursor = db.cursor()
 
 headers = {
     "Host": "m.dianping.com",
-    "mtgsig": "{\"a1\":\"1.2\",\"a2\":1749570461796,\"a3\":\"z5ux907x7zx657wuzw3w2u443xv4xz1080240u07vy1979789w9y8922\",\"a4\":\"c9fcaadda5caf3b9ddaafcc9b9f3caa5b90a7a9300f9b036\",\"a5\":\"oHNYX48RmBmyYxmD1eDcSzkmeAsZlWAh72vN0OeH2R0kG3idgeOSrBLDxL7xkRVHBC99AC+sii2k02jxgXoYVW/RXSZnEEcJ0Js2JFEHOHRlzLz/VyOXjqBBISH88ZnH4b/N/eGcGcl/jAsmVaFziEKeOJgP8amKu+tWTBx9mQg8TmjUtkmZVXPW5MNAtCzZlPxB6Gv23FsuNuHDfE/0HSyS2VWxywgyQ0/WVOKc5c9dqIJwrf04Yl6tYTldweoKBbh1cDnqXQhUsz3WUy3leQ9qc04Z+YtGDVGV5o79vF2sdOJ6Fvr=\",\"a6\":\"w1.3GtVlAuJkm9pnPfnmbQHsZ8NCYS+Fn6k3PJhiR+eSJsMKt0LNQ3VI5yy2MmSzmJEgX3X9MqZ3M3uoTpAtDwsd2o28q+oCsi7QUlE6YSh7IuTA/ZbtsrJo/TIWqGM2GAunvq06ASgcXrmH6YeU6um8jizCGg5h7mnXBtxWrwWoYaCXINxJxXyLqEJX78Dh4vYen+i9XKMdI4nVkxq78xrnltUkbCGipGcCKB2gEbaQqrZ/aiAqpG6sD8y9QcNVP4YHx8Jm0wzNR6e7ZDgNnos1OKLKmBYjyMUBjyWdy5l5Zmf5wtysQF2fJBW4HraA1jmg47vh4ASk/8OMh7TjewJ9VHsiXXxkJS/7mkWmNx1Kei+k3vA/bI8dqQLalk3lsUhrfVyNFjoCwSTJGiz+HUaNHjbmkWJtI2gYRer1q7+T/J4Hiov7g5LA4TnICmz6Bd3EK4raRbahIRAwKwlyaps6otx3GavnNq6WCenJpZY6b0Nk2H5LDTnXvcZ/2yZgpyDM\",\"a7\":\"wx734c1ad7b3562129\",\"x0\":3,\"d1\":\"7b516896c93341049b43e4cc471f2456\"}",
     "openid": "6LhsR_sK1uagKLF0M2ZBPmh8hJSYd60LPW70JOhxS2s",
     "channel": "weixin",
     "channelversion": "3.8.10",
@@ -34,7 +33,6 @@ headers = {
 url = "https://m.dianping.com/ugc/review/reviewlist"
 params = {
     "yodaReady": "wx",
-    "csecappid": "wx734c1ad7b3562129",
     "csecplatform": "3",
     "csecversionname": "9.85.2",
     "csecversion": "1.4.0",
